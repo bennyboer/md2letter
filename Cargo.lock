@@ -3,9 +3,27 @@
 version = 3
 
 [[package]]
+name = "arrayvec"
+version = "0.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8da52d66c7071e2e3fa2a1e5c6d088fec47b593032b254f5e980de8ea54454d6"
+
+[[package]]
 name = "md2letter"
 version = "0.1.0"
 
 [[package]]
 name = "md2letter-convert"
 version = "0.1.0"
+dependencies = [
+ "utf8-chars",
+]
+
+[[package]]
+name = "utf8-chars"
+version = "2.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "437bc4a6a3acdb2a99491b19ec1c2131a536d9f1d7da112341ec5c9e5f4dfc3a"
+dependencies = [
+ "arrayvec",
+]
