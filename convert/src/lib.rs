@@ -5,12 +5,18 @@ use std::io::Read;
 
 use tokenizer::Tokenizer;
 
+mod source_position;
+mod source_span;
 mod tokenizer;
 
 pub type ConvertResult<T> = Result<T, Box<dyn Error>>;
 
 pub fn convert(reader: Box<dyn Read>) -> ConvertResult<String> {
-    let _tokenizer = Tokenizer::new(reader);
+    let tokenizer = Tokenizer::new(reader);
+
+    // TODO Replace below two lines by iterating over tokens instead.
+    let tokens = tokenizer.map(|t| t.unwrap()).collect::<Vec<_>>();
+    println!("{:#?}", tokens);
 
     // TODO Invoke parser to turn tokens into a flat list of blocks
 

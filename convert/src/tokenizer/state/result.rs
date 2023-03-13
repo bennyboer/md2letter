@@ -26,7 +26,7 @@ impl StateProcessResult {
         }
     }
 
-    pub(crate) fn with_err(self, err: Box<dyn Error>) -> Self {
+    pub(crate) fn _with_err(self, err: Box<dyn Error>) -> Self {
         Self {
             token: self.token,
             err: Some(err),

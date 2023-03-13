@@ -13,5 +13,6 @@ mod text;
 
 pub(crate) trait State {
     fn process(&mut self, c: char, tokenizer: &mut Tokenizer) -> StateProcessResult;
+    fn end_of_input(&mut self, tokenizer: &mut Tokenizer) -> StateProcessResult;
     fn name(&self) -> &str;
 }

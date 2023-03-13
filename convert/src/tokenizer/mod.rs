@@ -2,6 +2,7 @@ use std::io::{BufReader, Read};
 
 use utf8_chars::BufReadCharsExt;
 
+use crate::source_position::SourcePosition;
 use crate::tokenizer::result::TokenizeResult;
 use crate::tokenizer::state::{StartState, State, StateStackOperation};
 use crate::tokenizer::token::Token;
@@ -13,6 +14,7 @@ mod token;
 pub(crate) struct Tokenizer {
     reader: BufReader<Box<dyn Read>>,
     look_ahead_buffer: Vec<char>,
+    current_position: SourcePosition,
 }
 
 impl Tokenizer {
@@ -20,18 +22,38 @@ impl Tokenizer {
         Self {
             reader: BufReader::new(Box::new(reader)),
             look_ahead_buffer: Vec::new(),
+            current_position: SourcePosition::zero(),
         }
+    }
+
+    pub(crate) fn source_position(&self) -> SourcePosition {
+        self.current_position.clone()
     }
 
     fn read_next(&mut self) -> Option<char> {
-        if let Some(c) = self.look_ahead_buffer.pop() {
+        let next_char = if let Some(c) = self.look_ahead_buffer.pop() {
             return Some(c);
+        } else {
+            self.reader.read_char().ok().flatten()
+        };
+
+        if let Some(c) = next_char {
+            if c == '\r' {
+                return self.read_next();
+            }
+
+            if c == '\n' {
+                self.current_position.line += 1;
+                self.current_position.column = 1;
+            } else {
+                self.current_position.column += 1;
+            }
         }
 
-        self.reader.read_char().ok().flatten()
+        next_char
     }
 
-    fn look_ahead(&mut self, count: usize) -> Option<&[char]> {
+    fn _look_ahead(&mut self, count: usize) -> Option<&[char]> {
         while self.look_ahead_buffer.len() < count {
             if let Some(c) = self.read_next() {
                 self.look_ahead_buffer.insert(0, c);
@@ -59,35 +81,30 @@ impl Iterator for Tokenizer {
         let mut state_stack: Vec<Box<dyn State>> = vec![Box::new(StartState::new())];
 
         loop {
-            match self.read_next() {
-                Some(c) => {
-                    println!("\n------------------");
-                    println!(
-                        "State stack: {:?}",
-                        state_stack.iter().map(|s| s.name()).collect::<Vec<&str>>()
-                    );
-                    let current_state = state_stack.last_mut().unwrap();
+            let current_state = state_stack.last_mut().unwrap();
 
-                    println!(
-                        "Processing char: '{}' with state: {}",
-                        c,
-                        current_state.name()
-                    );
-                    let result = current_state.process(c, self);
-
-                    update_state_stack(&mut state_stack, result.state_stack_operation);
-
-                    if let Some(err) = result.err {
-                        return Some(Err(err));
-                    }
-
-                    if let Some(token) = result.token {
-                        println!("Found token: {:?}", token);
-                        return Some(Ok(token));
-                    }
+            let mut end_loop = false;
+            let result = match self.read_next() {
+                Some(c) => current_state.process(c, self),
+                None => {
+                    end_loop = true;
+                    current_state.end_of_input(self)
                 }
-                None => return None,
             };
+
+            update_state_stack(&mut state_stack, result.state_stack_operation);
+
+            if let Some(err) = result.err {
+                return Some(Err(err));
+            }
+
+            if let Some(token) = result.token {
+                return Some(Ok(token));
+            }
+
+            if end_loop {
+                return None;
+            }
         }
     }
 }
@@ -95,19 +112,12 @@ impl Iterator for Tokenizer {
 fn update_state_stack(state_stack: &mut Vec<Box<dyn State>>, operation: StateStackOperation) {
     match operation {
         StateStackOperation::Push(state) => {
-            println!("Pushing state: {}", state.name());
             state_stack.push(state);
         }
         StateStackOperation::Pop => {
-            println!("Popping state: {}", state_stack.last().unwrap().name());
             state_stack.pop();
         }
         StateStackOperation::Replace(state) => {
-            println!(
-                "Replacing state {} with {}",
-                state_stack.last().unwrap().name(),
-                state.name()
-            );
             state_stack.pop();
             state_stack.push(state);
         }
@@ -120,7 +130,8 @@ mod test {
     use std::error::Error;
     use std::io::BufReader;
 
-    use crate::tokenizer::token::Token::{
+    use crate::source_span::SourceSpan;
+    use crate::tokenizer::token::TokenKind::{
         BlockSeparator, BoldEmphasis, HeadingLevel, ItalicEmphasis, Text,
     };
 
@@ -135,9 +146,9 @@ mod test {
         let reader = Box::new(BufReader::new(src.as_bytes()));
         let mut tokenizer = Tokenizer::new(reader);
 
-        assert_eq!(tokenizer.next().unwrap().unwrap(), HeadingLevel(0));
+        assert_eq!(tokenizer.next().unwrap().unwrap().kind, HeadingLevel(0));
         assert_eq!(
-            tokenizer.next().unwrap().unwrap(),
+            tokenizer.next().unwrap().unwrap().kind,
             Text(" This is a heading".to_string())
         );
         assert!(tokenizer.next().is_none());
@@ -157,12 +168,12 @@ mod test {
         let mut tokenizer = Tokenizer::new(reader);
 
         assert_eq!(
-            tokenizer.next().unwrap().unwrap(),
+            tokenizer.next().unwrap().unwrap().kind,
             Text("Paragraph".to_string())
         );
-        assert_eq!(tokenizer.next().unwrap().unwrap(), BlockSeparator);
+        assert_eq!(tokenizer.next().unwrap().unwrap().kind, BlockSeparator);
         assert_eq!(
-            tokenizer.next().unwrap().unwrap(),
+            tokenizer.next().unwrap().unwrap().kind,
             Text("Paragraph".to_string())
         );
         assert!(tokenizer.next().is_none());
@@ -179,12 +190,12 @@ mod test {
         let reader = Box::new(BufReader::new(src.as_bytes()));
         let mut tokenizer = Tokenizer::new(reader);
 
-        assert_eq!(tokenizer.next().unwrap().unwrap(), ItalicEmphasis);
+        assert_eq!(tokenizer.next().unwrap().unwrap().kind, ItalicEmphasis);
         assert_eq!(
-            tokenizer.next().unwrap().unwrap(),
+            tokenizer.next().unwrap().unwrap().kind,
             Text("This is emphasized".to_string())
         );
-        assert_eq!(tokenizer.next().unwrap().unwrap(), ItalicEmphasis);
+        assert_eq!(tokenizer.next().unwrap().unwrap().kind, ItalicEmphasis);
         assert!(tokenizer.next().is_none());
 
         Ok(())
@@ -199,12 +210,12 @@ mod test {
         let reader = Box::new(BufReader::new(src.as_bytes()));
         let mut tokenizer = Tokenizer::new(reader);
 
-        assert_eq!(tokenizer.next().unwrap().unwrap(), BoldEmphasis);
+        assert_eq!(tokenizer.next().unwrap().unwrap().kind, BoldEmphasis);
         assert_eq!(
-            tokenizer.next().unwrap().unwrap(),
+            tokenizer.next().unwrap().unwrap().kind,
             Text("This is emphasized".to_string())
         );
-        assert_eq!(tokenizer.next().unwrap().unwrap(), BoldEmphasis);
+        assert_eq!(tokenizer.next().unwrap().unwrap().kind, BoldEmphasis);
         assert!(tokenizer.next().is_none());
 
         Ok(())
@@ -226,41 +237,44 @@ mod test {
         let reader = Box::new(BufReader::new(src.as_bytes()));
         let mut tokenizer = Tokenizer::new(reader);
 
-        assert_eq!(tokenizer.next().unwrap().unwrap(), HeadingLevel(0));
+        assert_eq!(tokenizer.next().unwrap().unwrap().kind, HeadingLevel(0));
         assert_eq!(
-            tokenizer.next().unwrap().unwrap(),
+            tokenizer.next().unwrap().unwrap().kind,
             Text(" This is a ".to_string())
         );
-        assert_eq!(tokenizer.next().unwrap().unwrap(), ItalicEmphasis);
+        assert_eq!(tokenizer.next().unwrap().unwrap().kind, ItalicEmphasis);
         assert_eq!(
-            tokenizer.next().unwrap().unwrap(),
+            tokenizer.next().unwrap().unwrap().kind,
             Text("heading".to_string())
         );
-        assert_eq!(tokenizer.next().unwrap().unwrap(), ItalicEmphasis);
+        assert_eq!(tokenizer.next().unwrap().unwrap().kind, ItalicEmphasis);
         assert_eq!(
-            tokenizer.next().unwrap().unwrap(),
+            tokenizer.next().unwrap().unwrap().kind,
             Text(" with emphasis".to_string())
         );
-        assert_eq!(tokenizer.next().unwrap().unwrap(), BlockSeparator);
+        assert_eq!(tokenizer.next().unwrap().unwrap().kind, BlockSeparator);
         assert_eq!(
-            tokenizer.next().unwrap().unwrap(),
+            tokenizer.next().unwrap().unwrap().kind,
             Text("This is a paragraph with ".to_string())
         );
-        assert_eq!(tokenizer.next().unwrap().unwrap(), BoldEmphasis);
-        assert_eq!(tokenizer.next().unwrap().unwrap(), Text("bold".to_string()));
-        assert_eq!(tokenizer.next().unwrap().unwrap(), BoldEmphasis);
+        assert_eq!(tokenizer.next().unwrap().unwrap().kind, BoldEmphasis);
         assert_eq!(
-            tokenizer.next().unwrap().unwrap(),
+            tokenizer.next().unwrap().unwrap().kind,
+            Text("bold".to_string())
+        );
+        assert_eq!(tokenizer.next().unwrap().unwrap().kind, BoldEmphasis);
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap().kind,
             Text(" emphasis.".to_string())
         );
         assert_eq!(
-            tokenizer.next().unwrap().unwrap(),
+            tokenizer.next().unwrap().unwrap().kind,
             Text("It should work.".to_string())
         );
-        assert_eq!(tokenizer.next().unwrap().unwrap(), BlockSeparator);
-        assert_eq!(tokenizer.next().unwrap().unwrap(), HeadingLevel(1));
+        assert_eq!(tokenizer.next().unwrap().unwrap().kind, BlockSeparator);
+        assert_eq!(tokenizer.next().unwrap().unwrap().kind, HeadingLevel(1));
         assert_eq!(
-            tokenizer.next().unwrap().unwrap(),
+            tokenizer.next().unwrap().unwrap().kind,
             Text(" This is a subheading".to_string())
         );
         assert!(tokenizer.next().is_none());
@@ -270,7 +284,125 @@ mod test {
 
     #[test]
     fn should_include_source_span_in_tokens() -> Result<(), Box<dyn Error>> {
-        // TODO Test that tokens include the exact start end end position in the source.
-        Err("Not implemented".into())
+        let src = "## Heading test
+
+Paragraph with **bold** emphasis.";
+
+        let reader = Box::new(BufReader::new(src.as_bytes()));
+        let mut tokenizer = Tokenizer::new(reader);
+
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap(),
+            Token::new(
+                HeadingLevel(1),
+                SourceSpan {
+                    start: SourcePosition { line: 1, column: 1 },
+                    end: SourcePosition { line: 1, column: 3 }
+                }
+            )
+        );
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap(),
+            Token::new(
+                Text(" Heading test".to_string()),
+                SourceSpan {
+                    start: SourcePosition { line: 1, column: 3 },
+                    end: SourcePosition {
+                        line: 1,
+                        column: 16
+                    }
+                }
+            )
+        );
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap(),
+            Token::new(
+                BlockSeparator,
+                SourceSpan {
+                    start: SourcePosition { line: 2, column: 1 },
+                    end: SourcePosition { line: 3, column: 1 }
+                }
+            )
+        );
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap(),
+            Token::new(
+                Text("Paragraph with ".to_string()),
+                SourceSpan {
+                    start: SourcePosition { line: 3, column: 1 },
+                    end: SourcePosition {
+                        line: 3,
+                        column: 16
+                    }
+                }
+            )
+        );
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap(),
+            Token::new(
+                BoldEmphasis,
+                SourceSpan {
+                    start: SourcePosition {
+                        line: 3,
+                        column: 16
+                    },
+                    end: SourcePosition {
+                        line: 3,
+                        column: 18
+                    }
+                }
+            )
+        );
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap(),
+            Token::new(
+                Text("bold".to_string()),
+                SourceSpan {
+                    start: SourcePosition {
+                        line: 3,
+                        column: 18
+                    },
+                    end: SourcePosition {
+                        line: 3,
+                        column: 22
+                    }
+                }
+            )
+        );
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap(),
+            Token::new(
+                BoldEmphasis,
+                SourceSpan {
+                    start: SourcePosition {
+                        line: 3,
+                        column: 22
+                    },
+                    end: SourcePosition {
+                        line: 3,
+                        column: 24
+                    }
+                }
+            )
+        );
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap(),
+            Token::new(
+                Text(" emphasis.".to_string()),
+                SourceSpan {
+                    start: SourcePosition {
+                        line: 3,
+                        column: 24
+                    },
+                    end: SourcePosition {
+                        line: 3,
+                        column: 34
+                    }
+                }
+            )
+        );
+        assert!(tokenizer.next().is_none());
+
+        Ok(())
     }
 }
