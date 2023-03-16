@@ -131,9 +131,8 @@ mod test {
     use std::io::BufReader;
 
     use crate::source_span::SourceSpan;
-    use crate::tokenizer::token::TokenKind::{
-        BlockSeparator, BoldEmphasis, HeadingLevel, ItalicEmphasis, Text,
-    };
+    use crate::tokenizer::token::EmphasisType::{BoldOrItalic, Code};
+    use crate::tokenizer::token::TokenKind::{BlockSeparator, Emphasis, HeadingLevel, Text};
 
     use super::*;
 
@@ -147,6 +146,25 @@ mod test {
         let mut tokenizer = Tokenizer::new(reader);
 
         assert_eq!(tokenizer.next().unwrap().unwrap().kind, HeadingLevel(0));
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap().kind,
+            Text(" This is a heading".to_string())
+        );
+        assert!(tokenizer.next().is_none());
+
+        Ok(())
+    }
+
+    #[test]
+    fn tokenize_heading_with_level() -> Result<(), Box<dyn Error>> {
+        let src = "
+        ##### This is a heading
+        ";
+
+        let reader = Box::new(BufReader::new(src.as_bytes()));
+        let mut tokenizer = Tokenizer::new(reader);
+
+        assert_eq!(tokenizer.next().unwrap().unwrap().kind, HeadingLevel(4));
         assert_eq!(
             tokenizer.next().unwrap().unwrap().kind,
             Text(" This is a heading".to_string())
@@ -190,12 +208,18 @@ mod test {
         let reader = Box::new(BufReader::new(src.as_bytes()));
         let mut tokenizer = Tokenizer::new(reader);
 
-        assert_eq!(tokenizer.next().unwrap().unwrap().kind, ItalicEmphasis);
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap().kind,
+            Emphasis(BoldOrItalic)
+        );
         assert_eq!(
             tokenizer.next().unwrap().unwrap().kind,
             Text("This is emphasized".to_string())
         );
-        assert_eq!(tokenizer.next().unwrap().unwrap().kind, ItalicEmphasis);
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap().kind,
+            Emphasis(BoldOrItalic)
+        );
         assert!(tokenizer.next().is_none());
 
         Ok(())
@@ -210,12 +234,52 @@ mod test {
         let reader = Box::new(BufReader::new(src.as_bytes()));
         let mut tokenizer = Tokenizer::new(reader);
 
-        assert_eq!(tokenizer.next().unwrap().unwrap().kind, BoldEmphasis);
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap().kind,
+            Emphasis(BoldOrItalic)
+        );
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap().kind,
+            Emphasis(BoldOrItalic)
+        );
         assert_eq!(
             tokenizer.next().unwrap().unwrap().kind,
             Text("This is emphasized".to_string())
         );
-        assert_eq!(tokenizer.next().unwrap().unwrap().kind, BoldEmphasis);
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap().kind,
+            Emphasis(BoldOrItalic)
+        );
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap().kind,
+            Emphasis(BoldOrItalic)
+        );
+        assert!(tokenizer.next().is_none());
+
+        Ok(())
+    }
+
+    #[test]
+    fn tokenize_code_emphasis() -> Result<(), Box<dyn Error>> {
+        let src = "
+        `This is emphasized`
+        ";
+
+        let reader = Box::new(BufReader::new(src.as_bytes()));
+        let mut tokenizer = Tokenizer::new(reader);
+
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap().kind,
+            Emphasis(Code)
+        );
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap().kind,
+            Text("This is emphasized".to_string())
+        );
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap().kind,
+            Emphasis(Code)
+        );
         assert!(tokenizer.next().is_none());
 
         Ok(())
@@ -242,12 +306,18 @@ mod test {
             tokenizer.next().unwrap().unwrap().kind,
             Text(" This is a ".to_string())
         );
-        assert_eq!(tokenizer.next().unwrap().unwrap().kind, ItalicEmphasis);
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap().kind,
+            Emphasis(BoldOrItalic)
+        );
         assert_eq!(
             tokenizer.next().unwrap().unwrap().kind,
             Text("heading".to_string())
         );
-        assert_eq!(tokenizer.next().unwrap().unwrap().kind, ItalicEmphasis);
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap().kind,
+            Emphasis(BoldOrItalic)
+        );
         assert_eq!(
             tokenizer.next().unwrap().unwrap().kind,
             Text(" with emphasis".to_string())
@@ -257,12 +327,26 @@ mod test {
             tokenizer.next().unwrap().unwrap().kind,
             Text("This is a paragraph with ".to_string())
         );
-        assert_eq!(tokenizer.next().unwrap().unwrap().kind, BoldEmphasis);
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap().kind,
+            Emphasis(BoldOrItalic)
+        );
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap().kind,
+            Emphasis(BoldOrItalic)
+        );
         assert_eq!(
             tokenizer.next().unwrap().unwrap().kind,
             Text("bold".to_string())
         );
-        assert_eq!(tokenizer.next().unwrap().unwrap().kind, BoldEmphasis);
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap().kind,
+            Emphasis(BoldOrItalic)
+        );
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap().kind,
+            Emphasis(BoldOrItalic)
+        );
         assert_eq!(
             tokenizer.next().unwrap().unwrap().kind,
             Text(" emphasis.".to_string())
@@ -340,11 +424,27 @@ Paragraph with **bold** emphasis.";
         assert_eq!(
             tokenizer.next().unwrap().unwrap(),
             Token::new(
-                BoldEmphasis,
+                Emphasis(BoldOrItalic),
                 SourceSpan {
                     start: SourcePosition {
                         line: 3,
                         column: 16
+                    },
+                    end: SourcePosition {
+                        line: 3,
+                        column: 17
+                    }
+                }
+            )
+        );
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap(),
+            Token::new(
+                Emphasis(BoldOrItalic),
+                SourceSpan {
+                    start: SourcePosition {
+                        line: 3,
+                        column: 17
                     },
                     end: SourcePosition {
                         line: 3,
@@ -372,11 +472,27 @@ Paragraph with **bold** emphasis.";
         assert_eq!(
             tokenizer.next().unwrap().unwrap(),
             Token::new(
-                BoldEmphasis,
+                Emphasis(BoldOrItalic),
                 SourceSpan {
                     start: SourcePosition {
                         line: 3,
                         column: 22
+                    },
+                    end: SourcePosition {
+                        line: 3,
+                        column: 23
+                    }
+                }
+            )
+        );
+        assert_eq!(
+            tokenizer.next().unwrap().unwrap(),
+            Token::new(
+                Emphasis(BoldOrItalic),
+                SourceSpan {
+                    start: SourcePosition {
+                        line: 3,
+                        column: 23
                     },
                     end: SourcePosition {
                         line: 3,

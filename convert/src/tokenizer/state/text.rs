@@ -39,7 +39,7 @@ impl TextState {
 impl State for TextState {
     fn process(&mut self, c: char, tokenizer: &mut Tokenizer) -> StateProcessResult {
         match c {
-            '\n' | '*' => {
+            '\n' | '*' | '`' => {
                 tokenizer.mark_char_as_unconsumed(c);
 
                 let token = self.create_token();

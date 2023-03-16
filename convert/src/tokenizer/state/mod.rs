@@ -5,8 +5,8 @@ use crate::tokenizer::state::result::StateProcessResult;
 use crate::tokenizer::Tokenizer;
 
 mod block_separator;
-mod emphasis;
 mod heading_level;
+mod horizontal_rule;
 mod result;
 mod start;
 mod text;

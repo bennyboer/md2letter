@@ -11,8 +11,14 @@ pub(crate) enum TokenKind {
     BlockSeparator,
     HeadingLevel(usize),
     Text(String),
-    ItalicEmphasis,
-    BoldEmphasis,
+    Emphasis(EmphasisType),
+    HorizontalRule,
+}
+
+#[derive(Debug, PartialEq)]
+pub(crate) enum EmphasisType {
+    BoldOrItalic,
+    Code,
 }
 
 impl Token {
