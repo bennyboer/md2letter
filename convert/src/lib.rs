@@ -3,24 +3,24 @@ extern crate core;
 use std::error::Error;
 use std::io::Read;
 
-use tokenizer::Tokenizer;
+use crate::splitter::{BlockSplitter, SplitterBlock};
 
+mod categorizer;
+mod parser;
+mod render;
 mod source_position;
 mod source_span;
+mod splitter;
 mod tokenizer;
+mod transformer;
 
 pub type ConvertResult<T> = Result<T, Box<dyn Error>>;
 
 pub fn convert(reader: Box<dyn Read>) -> ConvertResult<String> {
-    let tokenizer = Tokenizer::new(reader);
+    let splitter = BlockSplitter::new(reader);
 
-    // TODO Replace below two lines by iterating over tokens instead.
-    let tokens = tokenizer.map(|t| t.unwrap()).collect::<Vec<_>>();
-    println!("{:#?}", tokens);
-
-    // TODO Invoke parser to turn tokens into a flat list of blocks
-
-    // TODO Invoke renderer to turn blocks into a tree (letter script format)
+    let blocks: Vec<SplitterBlock> = splitter.collect();
+    println!("Blocks: {:#?}", blocks);
 
     Ok("".to_string())
 }

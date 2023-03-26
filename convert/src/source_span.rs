@@ -8,3 +8,9 @@ pub struct SourceSpan {
     /// End of source span (exclusive).
     pub end: SourcePosition,
 }
+
+impl SourceSpan {
+    pub fn new(start: SourcePosition, end: SourcePosition) -> Self {
+        Self { start, end }
+    }
+}

@@ -6,19 +6,19 @@ pub(crate) struct Token {
     pub(crate) source_span: SourceSpan,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub(crate) enum TokenKind {
     BlockSeparator,
     HeadingLevel(usize),
     Text(String),
-    Emphasis(EmphasisType),
+    ItalicStart,
+    ItalicEnd,
+    BoldStart,
+    BoldEnd,
+    CodeStart,
+    CodeEnd,
     HorizontalRule,
-}
-
-#[derive(Debug, PartialEq)]
-pub(crate) enum EmphasisType {
-    BoldOrItalic,
-    Code,
+    ListItemLevel { level: usize, ordered: bool },
 }
 
 impl Token {

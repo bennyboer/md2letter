@@ -1,3 +1,9 @@
-use std::error::Error;
+use crate::source_position::SourcePosition;
 
-pub type TokenizeResult<T> = Result<T, Box<dyn Error>>;
+pub type TokenizeResult<T> = Result<T, TokenizeError>;
+
+#[derive(Debug)]
+pub struct TokenizeError {
+    pub message: String,
+    pub source_position: SourcePosition,
+}
