@@ -15,6 +15,10 @@ impl SplitterBlock {
         &self.src
     }
 
+    pub(crate) fn into_src(self) -> String {
+        self.src
+    }
+
     pub(crate) fn span(&self) -> &SourceSpan {
         &self.span
     }

@@ -1,6 +1,6 @@
 use crate::source_position::SourcePosition;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct SourceSpan {
     /// Start of the source span (inclusive).
     pub start: SourcePosition,
