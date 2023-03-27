@@ -7,6 +7,8 @@ pub(crate) enum BlockKind {
     List,
     Table,
     Image,
+    Quote,
+    Code,
     Function,
     HorizontalRule,
 }

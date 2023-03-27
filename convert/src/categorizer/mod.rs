@@ -2,7 +2,7 @@
 
 use block::BlockKind::{Function, Heading, Text};
 
-use crate::categorizer::block::BlockKind::Image;
+use crate::categorizer::block::BlockKind::{HorizontalRule, Image, List};
 use crate::categorizer::block::CategorizedBlock;
 use crate::splitter::SplitterBlock;
 
@@ -37,10 +37,106 @@ impl BlockCategorizer {
                     Text
                 }
             }
+            '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {
+                if self.is_ordered_list(&src) {
+                    List
+                } else {
+                    Text
+                }
+            }
+            '-' => {
+                if self.is_horizontal_rule(&src, first_char) {
+                    HorizontalRule
+                } else if self.is_unordered_list(&src, first_char) {
+                    List
+                } else {
+                    Text
+                }
+            }
+            '+' => {
+                if self.is_horizontal_rule(&src, first_char) {
+                    HorizontalRule
+                } else if self.is_unordered_list(&src, first_char) {
+                    List
+                } else {
+                    Text
+                }
+            }
+            '*' => {
+                if self.is_horizontal_rule(&src, first_char) {
+                    HorizontalRule
+                } else if self.is_unordered_list(&src, first_char) {
+                    List
+                } else {
+                    Text
+                }
+            }
+            '_' => {
+                if self.is_horizontal_rule(&src, first_char) {
+                    HorizontalRule
+                } else {
+                    Text
+                }
+            }
             _ => Text,
         };
 
         CategorizedBlock::new(kind, src, source_span)
+    }
+
+    fn is_ordered_list(&self, src: &str) -> bool {
+        let next_char_is_period = src
+            .chars()
+            .skip(1)
+            .next()
+            .map(|c| c == '.')
+            .unwrap_or(false);
+        let next_char_is_space = next_char_is_period
+            && src
+                .chars()
+                .skip(2)
+                .next()
+                .map(|c| c == ' ')
+                .unwrap_or(false);
+
+        next_char_is_period && next_char_is_space
+    }
+
+    fn is_unordered_list(&self, src: &str, char: char) -> bool {
+        let next_char_is_space = src
+            .chars()
+            .skip(1)
+            .next()
+            .map(|c| c == ' ')
+            .unwrap_or(false);
+
+        next_char_is_space
+    }
+
+    fn is_horizontal_rule(&self, src: &str, char: char) -> bool {
+        let mut counter = 0;
+
+        for c in src.chars() {
+            if c == char {
+                counter += 1;
+            } else {
+                break;
+            }
+        }
+
+        let is_possible_horizontal_rule = counter >= 3;
+
+        // Check if there is more content to the block
+        if is_possible_horizontal_rule {
+            for c in src.chars().skip(counter) {
+                match c {
+                    ' ' | '\t' => {}
+                    _ => return false,
+                }
+            }
+        }
+
+        is_possible_horizontal_rule
     }
 
     fn is_image(&self, src: &str) -> bool {
@@ -174,11 +270,106 @@ impl BlockCategorizer {
 
 #[cfg(test)]
 mod tests {
-    use crate::categorizer::block::BlockKind::{HorizontalRule, List};
+    use crate::categorizer::block::BlockKind::{Code, HorizontalRule, List, Quote, Table};
     use crate::source_position::SourcePosition;
     use crate::source_span::SourceSpan;
 
     use super::*;
+
+    #[test]
+    fn categorize_text() {
+        let text_block = SplitterBlock::new(
+            "Hello World [click here](https://example.com) - it's **cool**!".to_string(),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 63)),
+        );
+
+        let categorizer = BlockCategorizer::new();
+
+        let categorized_block = categorizer.categorize(text_block);
+
+        assert_eq!(categorized_block.kind(), &Text);
+        assert_eq!(
+            categorized_block.src(),
+            "Hello World [click here](https://example.com) - it's **cool**!"
+        );
+        assert_eq!(
+            categorized_block.span(),
+            &SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 63))
+        );
+    }
+
+    #[test]
+    fn categorize_code() {
+        let code_block = SplitterBlock::new(
+            "```js
+console.log('test');
+```"
+            .to_string(),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(3, 4)),
+        );
+
+        let categorizer = BlockCategorizer::new();
+
+        let categorized_block = categorizer.categorize(code_block);
+
+        assert_eq!(categorized_block.kind(), &Code);
+        assert_eq!(
+            categorized_block.src(),
+            "```js
+console.log('test');
+```"
+        );
+        assert_eq!(
+            categorized_block.span(),
+            &SourceSpan::new(SourcePosition::zero(), SourcePosition::new(3, 4))
+        );
+    }
+
+    #[test]
+    fn categorize_quote() {
+        let quote_block = SplitterBlock::new(
+            "> Hello World".to_string(),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(3, 14)),
+        );
+
+        let categorizer = BlockCategorizer::new();
+
+        let categorized_block = categorizer.categorize(quote_block);
+
+        assert_eq!(categorized_block.kind(), &Quote);
+        assert_eq!(categorized_block.src(), "> Hello World");
+        assert_eq!(
+            categorized_block.span(),
+            &SourceSpan::new(SourcePosition::zero(), SourcePosition::new(3, 14))
+        );
+    }
+
+    #[test]
+    fn categorize_table() {
+        let table_block = SplitterBlock::new(
+            "| First Header  | Second Header |
+| ------------- | ------------- |
+| Content Cell  | Content Cell  |"
+                .to_string(),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(3, 34)),
+        );
+
+        let categorizer = BlockCategorizer::new();
+
+        let categorized_block = categorizer.categorize(table_block);
+
+        assert_eq!(categorized_block.kind(), &Table);
+        assert_eq!(
+            categorized_block.src(),
+            "| First Header  | Second Header |
+| ------------- | ------------- |
+| Content Cell  | Content Cell  |"
+        );
+        assert_eq!(
+            categorized_block.span(),
+            &SourceSpan::new(SourcePosition::zero(), SourcePosition::new(3, 34))
+        );
+    }
 
     #[test]
     fn categorize_ordered_list() {
@@ -362,6 +553,44 @@ mod tests {
     }
 
     #[test]
+    fn categorize_horizontal_rule_with_star_char() {
+        let horizontal_rule_block = SplitterBlock::new(
+            "***".to_string(),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 4)),
+        );
+
+        let categorizer = BlockCategorizer::new();
+
+        let categorized_block = categorizer.categorize(horizontal_rule_block);
+
+        assert_eq!(categorized_block.kind(), &HorizontalRule);
+        assert_eq!(categorized_block.src(), "***");
+        assert_eq!(
+            categorized_block.span(),
+            &SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 4))
+        );
+    }
+
+    #[test]
+    fn categorize_faulty_horizontal_rule_with_stars_as_text() {
+        let horizontal_rule_block = SplitterBlock::new(
+            "***Some text***".to_string(),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 16)),
+        );
+
+        let categorizer = BlockCategorizer::new();
+
+        let categorized_block = categorizer.categorize(horizontal_rule_block);
+
+        assert_eq!(categorized_block.kind(), &Text);
+        assert_eq!(categorized_block.src(), "***Some text***");
+        assert_eq!(
+            categorized_block.span(),
+            &SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 16))
+        );
+    }
+
+    #[test]
     fn categorize_horizontal_rule_with_plus_char() {
         let horizontal_rule_block = SplitterBlock::new(
             "+++".to_string(),
@@ -411,7 +640,7 @@ mod tests {
         let categorized_block = categorizer.categorize(horizontal_rule_block);
 
         assert_eq!(categorized_block.kind(), &HorizontalRule);
-        assert_eq!(categorized_block.src(), "---");
+        assert_eq!(categorized_block.src(), "--------------------------");
         assert_eq!(
             categorized_block.span(),
             &SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 27))
@@ -573,25 +802,6 @@ mod tests {
         assert_eq!(
             categorized_block.span(),
             &SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 33))
-        );
-    }
-
-    #[test]
-    fn categorize_text() {
-        let text_block = SplitterBlock::new(
-            "Hello **World**".to_string(),
-            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 16)),
-        );
-
-        let categorizer = BlockCategorizer::new();
-
-        let categorized_block = categorizer.categorize(text_block);
-
-        assert_eq!(categorized_block.kind(), &Text);
-        assert_eq!(categorized_block.src(), "Hello **World**");
-        assert_eq!(
-            categorized_block.span(),
-            &SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 16))
         );
     }
 
