@@ -3,10 +3,7 @@ extern crate core;
 use std::error::Error;
 use std::io::Read;
 
-use crate::{
-    categorizer::BlockCategorizer,
-    splitter::{BlockSplitter, SplitterBlock},
-};
+use crate::{categorizer::BlockCategorizer, splitter::BlockSplitter};
 
 mod categorizer;
 mod parser;

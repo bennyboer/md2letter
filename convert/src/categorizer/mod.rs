@@ -130,7 +130,7 @@ impl BlockCategorizer {
         next_char_is_period && next_char_is_space
     }
 
-    fn is_unordered_list(&self, src: &str, char: char) -> bool {
+    fn is_unordered_list(&self, src: &str, _char: char) -> bool {
         let next_char_is_space = src
             .chars()
             .skip(1)
