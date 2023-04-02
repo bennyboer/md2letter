@@ -11,7 +11,6 @@ mod categorizer;
 mod parser;
 mod render;
 mod splitter;
-mod tokenizer;
 mod transformer;
 pub(crate) mod util;
 
