@@ -8,7 +8,7 @@
 use crate::categorizer::block::BlockKind::{
     Code, Function, Heading, HorizontalRule, Image, List, Quote, Table, Text,
 };
-use crate::categorizer::block::CategorizedBlock;
+pub(crate) use crate::categorizer::block::CategorizedBlock;
 use crate::splitter::SplitterBlock;
 
 pub(crate) struct BlockCategorizer;
