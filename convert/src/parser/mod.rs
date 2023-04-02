@@ -18,12 +18,14 @@ impl BlockParser {
     }
 
     pub(crate) fn parse(&self, categorized_block: CategorizedBlock) -> ParseResult<ParsedBlock> {
-        match categorized_block.kind() {
-            BlockKind::Text => TextParser::new(categorized_block).parse(),
+        let (kind, src, span) = categorized_block.consume();
+
+        match kind {
+            BlockKind::Text => TextParser::new(src, span.clone()).parse(),
             _ => Err(ParseError {
-                block: categorized_block,
+                block_kind: kind,
                 message: "Parser for block not implemented yet".to_string(),
-                source_position: categorized_block.span().start.clone(),
+                source_position: span.start.clone(),
             }),
         }
     }

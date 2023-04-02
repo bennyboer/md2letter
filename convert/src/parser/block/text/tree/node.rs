@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::parser::block::function::{FunctionName, FunctionParameters};
 use crate::util::SourceSpan;
 
 pub(crate) type NodeId = usize;
@@ -20,8 +21,8 @@ pub(crate) enum NodeKind {
         src: String,
     },
     Function {
-        name: String,
-        parameters: HashMap<String, String>,
+        name: FunctionName,
+        parameters: FunctionParameters,
     },
 }
 

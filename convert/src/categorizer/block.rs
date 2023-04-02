@@ -36,4 +36,8 @@ impl CategorizedBlock {
     pub(crate) fn span(&self) -> &SourceSpan {
         &self.span
     }
+
+    pub(crate) fn consume(self) -> (BlockKind, String, SourceSpan) {
+        (self.kind, self.src, self.span)
+    }
 }

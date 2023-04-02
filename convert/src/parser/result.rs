@@ -1,11 +1,11 @@
-use crate::categorizer::CategorizedBlock;
+use crate::categorizer::BlockKind;
 use crate::util::SourcePosition;
 
-pub type ParseResult<T> = Result<T, ParseError>;
+pub(crate) type ParseResult<T> = Result<T, ParseError>;
 
 #[derive(Debug)]
-pub struct ParseError {
-    pub block: CategorizedBlock,
+pub(crate) struct ParseError {
+    pub block_kind: BlockKind,
     pub message: String,
     pub source_position: SourcePosition,
 }
