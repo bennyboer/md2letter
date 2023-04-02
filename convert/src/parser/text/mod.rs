@@ -1,4 +1,5 @@
-use crate::parser::block::text::Tree;
+use crate::parser::block::text::{TextBlock, Tree};
+use crate::parser::block::ParsedBlockKind::Text;
 use crate::parser::text::tokenizer::Tokenizer;
 use crate::parser::{ParseResult, ParsedBlock};
 use crate::util::SourceSpan;
@@ -19,8 +20,13 @@ impl TextParser {
         }
     }
 
-    pub fn parse(&mut self) -> ParseResult<ParsedBlock> {
-        todo!("Parse text block");
+    pub fn parse(self) -> ParseResult<ParsedBlock> {
+        for token in self.tokenizer {
+            println!("{:?}", token); // TODO Map tokens to tree
+        }
+
+        let span = self.tree.root().span().clone();
+        Ok(ParsedBlock::new(Text(TextBlock::new(self.tree)), span))
     }
 }
 

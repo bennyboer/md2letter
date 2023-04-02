@@ -7,7 +7,7 @@ pub(crate) struct Token {
     span: SourceSpan,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub(crate) enum TokenKind {
     Error {
         message: String,
