@@ -4,6 +4,7 @@ use crate::source_span::SourceSpan;
 
 pub(crate) type NodeId = usize;
 
+#[derive(Debug)]
 pub(crate) enum NodeKind {
     Root,
     Text {
@@ -24,6 +25,7 @@ pub(crate) enum NodeKind {
     },
 }
 
+#[derive(Debug)]
 pub(crate) struct Node {
     id: NodeId,
     kind: NodeKind,

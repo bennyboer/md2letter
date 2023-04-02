@@ -3,6 +3,8 @@ extern crate core;
 use std::error::Error;
 use std::io::Read;
 
+use parser::BlockParser;
+
 use crate::{categorizer::BlockCategorizer, splitter::BlockSplitter};
 
 mod categorizer;
@@ -19,13 +21,13 @@ pub type ConvertResult<T> = Result<T, Box<dyn Error>>;
 pub fn convert(reader: Box<dyn Read>) -> ConvertResult<String> {
     let splitter = BlockSplitter::new(reader);
     let categorizer = BlockCategorizer::new();
+    let parser = BlockParser::new();
 
     splitter
         .into_iter()
         .map(|block| categorizer.categorize(block))
-        .for_each(|categorized_block| {
-            println!("Categorized block as '{:?}'", categorized_block.kind())
-        });
+        .map(|categorized_block| parser.parse(categorized_block))
+        .for_each(|parsed_block| println!("Parsed block '{:?}'", parsed_block));
 
     Ok("".to_string())
 }

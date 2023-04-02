@@ -14,11 +14,13 @@ mod quote;
 mod table;
 mod text;
 
+#[derive(Debug)]
 pub(crate) struct ParsedBlock {
     kind: ParsedBlockKind,
     span: SourceSpan,
 }
 
+#[derive(Debug)]
 pub(crate) enum ParsedBlockKind {
     Text(TextBlock),
     List(ListBlock),
