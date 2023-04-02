@@ -1,4 +1,4 @@
-use crate::source_span::SourceSpan;
+use crate::util::SourceSpan;
 
 pub(crate) type LanguageIdentifier = String;
 

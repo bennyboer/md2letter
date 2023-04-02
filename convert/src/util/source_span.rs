@@ -1,4 +1,4 @@
-use crate::source_position::SourcePosition;
+use crate::util::SourcePosition;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct SourceSpan {

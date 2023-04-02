@@ -1,4 +1,4 @@
-use crate::source_position::SourcePosition;
+use crate::util::SourcePosition;
 
 pub type TokenizeResult<T> = Result<T, TokenizeError>;
 

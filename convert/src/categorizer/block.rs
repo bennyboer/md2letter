@@ -1,4 +1,4 @@
-use crate::source_span::SourceSpan;
+use crate::util::SourceSpan;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum BlockKind {

@@ -1,4 +1,4 @@
-use crate::source_span::SourceSpan;
+use crate::util::SourceSpan;
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Token {

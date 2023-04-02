@@ -7,8 +7,8 @@ use utf8_chars::BufReadCharsExt;
 
 pub(crate) use block::SplitterBlock;
 
-use crate::source_position::SourcePosition;
-use crate::source_span::SourceSpan;
+use crate::util::SourcePosition;
+use crate::util::SourceSpan;
 
 mod block;
 

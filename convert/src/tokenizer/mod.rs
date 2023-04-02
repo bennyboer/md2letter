@@ -7,13 +7,13 @@ use utf8_chars::BufReadCharsExt;
 
 use TokenKind::{BlockSeparator, HeadingLevel};
 
-use crate::source_position::SourcePosition;
-use crate::source_span::SourceSpan;
 use crate::tokenizer::result::{TokenizeError, TokenizeResult};
 use crate::tokenizer::token::TokenKind::{
     BoldEnd, BoldStart, CodeEnd, CodeStart, HorizontalRule, ItalicEnd, ItalicStart, Text,
 };
 use crate::tokenizer::token::{Token, TokenKind};
+use crate::util::SourcePosition;
+use crate::util::SourceSpan;
 
 mod result;
 mod token;
@@ -731,11 +731,11 @@ impl Iterator for Tokenizer {
 mod test {
     use std::io::BufReader;
 
-    use crate::source_span::SourceSpan;
     use crate::tokenizer::token::TokenKind::{
         BlockSeparator, BoldEnd, BoldStart, CodeEnd, CodeStart, HeadingLevel, HorizontalRule,
         ItalicEnd, ItalicStart, ListItemLevel, Text,
     };
+    use crate::util::SourceSpan;
 
     use super::*;
 

@@ -6,3 +6,13 @@ pub(crate) mod tree;
 pub(crate) struct TextBlock {
     tree: Tree,
 }
+
+impl TextBlock {
+    pub(crate) fn new(tree: Tree) -> Self {
+        Self { tree }
+    }
+
+    pub(crate) fn tree(&self) -> &Tree {
+        &self.tree
+    }
+}

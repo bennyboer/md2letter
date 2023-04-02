@@ -10,11 +10,10 @@ use crate::{categorizer::BlockCategorizer, splitter::BlockSplitter};
 mod categorizer;
 mod parser;
 mod render;
-mod source_position;
-mod source_span;
 mod splitter;
 mod tokenizer;
 mod transformer;
+pub(crate) mod util;
 
 pub type ConvertResult<T> = Result<T, Box<dyn Error>>;
 
@@ -26,7 +25,7 @@ pub fn convert(reader: Box<dyn Read>) -> ConvertResult<String> {
     splitter
         .into_iter()
         .map(|block| categorizer.categorize(block))
-        .map(|categorized_block| parser.parse(categorized_block))
+        .map(|categorized_block| parser.parse(categorized_block)) // TODO Parse blocks concurrently
         .for_each(|parsed_block| println!("Parsed block '{:?}'", parsed_block));
 
     Ok("".to_string())

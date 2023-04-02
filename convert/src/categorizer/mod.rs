@@ -8,7 +8,7 @@
 use crate::categorizer::block::BlockKind::{
     Code, Function, Heading, HorizontalRule, Image, List, Quote, Table, Text,
 };
-pub(crate) use crate::categorizer::block::CategorizedBlock;
+pub(crate) use crate::categorizer::block::{BlockKind, CategorizedBlock};
 use crate::splitter::SplitterBlock;
 
 pub(crate) struct BlockCategorizer;
@@ -299,8 +299,8 @@ impl BlockCategorizer {
 #[cfg(test)]
 mod tests {
     use crate::categorizer::block::BlockKind::{Code, HorizontalRule, List, Quote, Table};
-    use crate::source_position::SourcePosition;
-    use crate::source_span::SourceSpan;
+    use crate::util::SourcePosition;
+    use crate::util::SourceSpan;
 
     use super::*;
 

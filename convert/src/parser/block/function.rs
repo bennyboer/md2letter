@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::source_span::SourceSpan;
+use crate::util::SourceSpan;
 
 pub(crate) type FunctionName = String;
 
