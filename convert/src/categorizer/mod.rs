@@ -1,8 +1,13 @@
-//! Categorize Markdown blocks (Text, Heading, List, etc.)
+//! Categorize Markdown blocks (Text, Heading, List, etc.).
+//! ---
+//! Alternatively we could just try to parse using each parser and see if they'd fail.
+//! That would not be very good performance wise, as we'd need to question each parser.
+//! The categorization thus is just a performance optimization.
+//! If the categorization is wrong - meaning that the designated parser is not able to figure out what the content means - the text parser is used as a fallback.
 
-use block::BlockKind::{Function, Heading, Text};
-
-use crate::categorizer::block::BlockKind::{HorizontalRule, Image, List};
+use crate::categorizer::block::BlockKind::{
+    Code, Function, Heading, HorizontalRule, Image, List, Quote, Table, Text,
+};
 use crate::categorizer::block::CategorizedBlock;
 use crate::splitter::SplitterBlock;
 
@@ -78,10 +83,33 @@ impl BlockCategorizer {
                     Text
                 }
             }
+            '>' => Quote,
+            '|' => Table,
+            '`' => {
+                if self.is_code_block(&src) {
+                    Code
+                } else {
+                    Text
+                }
+            }
             _ => Text,
         };
 
         CategorizedBlock::new(kind, src, source_span)
+    }
+
+    fn is_code_block(&self, src: &str) -> bool {
+        let mut counter = 0;
+
+        for c in src.chars() {
+            if c == '`' {
+                counter += 1;
+            } else {
+                break;
+            }
+        }
+
+        counter >= 3
     }
 
     fn is_ordered_list(&self, src: &str) -> bool {
@@ -316,6 +344,33 @@ console.log('test');
         assert_eq!(
             categorized_block.src(),
             "```js
+console.log('test');
+```"
+        );
+        assert_eq!(
+            categorized_block.span(),
+            &SourceSpan::new(SourcePosition::zero(), SourcePosition::new(3, 4))
+        );
+    }
+
+    #[test]
+    fn categorize_faulty_code_as_text() {
+        let code_block = SplitterBlock::new(
+            "` ``js
+console.log('test');
+```"
+            .to_string(),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(3, 4)),
+        );
+
+        let categorizer = BlockCategorizer::new();
+
+        let categorized_block = categorizer.categorize(code_block);
+
+        assert_eq!(categorized_block.kind(), &Text);
+        assert_eq!(
+            categorized_block.src(),
+            "` ``js
 console.log('test');
 ```"
         );
