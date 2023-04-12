@@ -1,4 +1,4 @@
-pub(crate) use self::tree::{Node, NodeId, NodeKind, Tree};
+pub(crate) use self::tree::{NodeKind, Tree};
 
 pub(crate) mod tree;
 
@@ -15,7 +15,7 @@ impl TextBlock {
     pub(crate) fn tree(&self) -> &Tree {
         &self.tree
     }
-    
+
     pub(crate) fn into_tree(self) -> Tree {
         self.tree
     }

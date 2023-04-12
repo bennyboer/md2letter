@@ -35,12 +35,5 @@ impl BlockParser {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
-    #[test]
-    fn should_fallback_to_text_parser_if_parsing_fails() {
-        // TODO
-    }
-
-    // TODO More tests
+    // TODO Tests
 }

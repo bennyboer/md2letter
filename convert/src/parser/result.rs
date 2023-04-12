@@ -1,4 +1,3 @@
-use crate::categorizer::BlockKind;
 use crate::util::SourcePosition;
 
 pub(crate) type ParseResult<T> = Result<T, ParseError>;

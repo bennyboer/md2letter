@@ -24,11 +24,11 @@ impl CategorizedBlock {
     pub(crate) fn new(kind: BlockKind, src: String, span: SourceSpan) -> Self {
         Self { kind, src, span }
     }
-
+    
     pub(crate) fn kind(&self) -> &BlockKind {
         &self.kind
     }
-
+    
     pub(crate) fn src(&self) -> &str {
         &self.src
     }

@@ -5,6 +5,7 @@ use std::io::Read;
 
 use parser::BlockParser;
 
+use crate::parser::{ParseError, ParsedBlock};
 use crate::{categorizer::BlockCategorizer, splitter::BlockSplitter};
 
 mod categorizer;
@@ -21,10 +22,20 @@ pub fn convert(reader: Box<dyn Read>) -> ConvertResult<String> {
     let categorizer = BlockCategorizer::new();
     let parser = BlockParser::new();
 
-    splitter
+    let blocks_result: Result<Vec<ParsedBlock>, ParseError> = splitter
         .into_iter()
         .map(|block| categorizer.categorize(block))
-        .map(|categorized_block| parser.parse(categorized_block)) // TODO Parse blocks concurrently
+        .map(|categorized_block| parser.parse(categorized_block))
+        .collect();
+
+    let blocks = if let Ok(blocks) = blocks_result {
+        blocks
+    } else {
+        return Err(format!("Failed to parse block: {:?}", blocks_result).into());
+    };
+
+    blocks
+        .iter()
         .for_each(|parsed_block| println!("Parsed block '{:?}'", parsed_block));
 
     Ok("".to_string())
