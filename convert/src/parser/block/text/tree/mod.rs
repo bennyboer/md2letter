@@ -1,9 +1,9 @@
 use std::collections::HashMap;
+use std::fmt::{Display, Formatter};
 
-use crate::parser::block::text::tree::node::NodeKind;
 use crate::util::{IdGenerator, SourceSpan};
 
-use self::node::{Node, NodeId};
+pub(crate) use self::node::{Node, NodeId, NodeKind};
 
 mod node;
 
@@ -34,6 +34,10 @@ impl Tree {
         self.nodes.get(&self.root).unwrap()
     }
 
+    pub(crate) fn get_node(&self, id: NodeId) -> Option<&Node> {
+        self.nodes.get(&id)
+    }
+
     pub(crate) fn register_node(
         &mut self,
         parent_id: NodeId,
@@ -50,4 +54,43 @@ impl Tree {
 
         id
     }
+
+    fn visit(&self, node: &Node, nodes: &mut Vec<NodeOnLevel>, level: usize) {
+        nodes.push(NodeOnLevel {
+            node_id: node.id(),
+            level,
+        });
+
+        for child_id in node.children() {
+            if let Some(child) = self.nodes.get(child_id) {
+                self.visit(child, nodes, level + 1);
+            }
+        }
+    }
+}
+
+impl Display for Tree {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let mut nodes = Vec::new();
+        self.visit(self.root(), &mut nodes, 0);
+
+        for node in nodes {
+            let level = node.level;
+
+            if let Some(node) = self.nodes.get(&node.node_id) {
+                for _ in 0..level {
+                    write!(f, "  ")?;
+                }
+
+                writeln!(f, "- {}", node.kind())?;
+            }
+        }
+
+        Ok(())
+    }
+}
+
+struct NodeOnLevel {
+    node_id: NodeId,
+    level: usize,
 }

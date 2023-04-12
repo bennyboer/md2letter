@@ -1,4 +1,4 @@
-pub(crate) use self::tree::Tree;
+pub(crate) use self::tree::{Node, NodeId, NodeKind, Tree};
 
 pub(crate) mod tree;
 

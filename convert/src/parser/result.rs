@@ -5,7 +5,6 @@ pub(crate) type ParseResult<T> = Result<T, ParseError>;
 
 #[derive(Debug)]
 pub(crate) struct ParseError {
-    pub block_kind: BlockKind,
     pub message: String,
     pub source_position: SourcePosition,
 }

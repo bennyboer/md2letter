@@ -23,7 +23,6 @@ impl BlockParser {
         match kind {
             BlockKind::Text => TextParser::new(src, span.clone()).parse(),
             _ => Err(ParseError {
-                block_kind: kind,
                 message: "Parser for block not implemented yet".to_string(),
                 source_position: span.start.clone(),
             }),
