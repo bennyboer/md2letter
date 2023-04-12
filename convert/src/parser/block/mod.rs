@@ -42,6 +42,10 @@ impl ParsedBlock {
         &self.kind
     }
 
+    pub(crate) fn into_kind(self) -> ParsedBlockKind {
+        self.kind
+    }
+
     pub(crate) fn span(&self) -> &SourceSpan {
         &self.span
     }

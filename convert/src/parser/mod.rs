@@ -4,9 +4,11 @@ pub(crate) use block::ParsedBlock;
 pub(crate) use result::{ParseError, ParseResult};
 
 use crate::categorizer::{BlockKind, CategorizedBlock};
+use crate::parser::heading::HeadingParser;
 use crate::parser::text::TextParser;
 
 mod block;
+mod heading;
 mod result;
 mod text;
 
@@ -22,6 +24,7 @@ impl BlockParser {
 
         match kind {
             BlockKind::Text => TextParser::new(src, span.clone()).parse(),
+            BlockKind::Heading => HeadingParser::new(src, span.clone()).parse(),
             _ => Err(ParseError {
                 message: "Parser for block not implemented yet".to_string(),
                 source_position: span.start.clone(),

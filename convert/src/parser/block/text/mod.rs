@@ -15,4 +15,8 @@ impl TextBlock {
     pub(crate) fn tree(&self) -> &Tree {
         &self.tree
     }
+    
+    pub(crate) fn into_tree(self) -> Tree {
+        self.tree
+    }
 }
