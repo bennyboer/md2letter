@@ -36,7 +36,7 @@ pub fn convert(reader: Box<dyn Read>) -> ConvertResult<String> {
 
     blocks
         .iter()
-        .for_each(|parsed_block| println!("Parsed block '{:?}'", parsed_block));
+        .for_each(|parsed_block| println!("Parsed block '{:#?}'", parsed_block));
 
     Ok("".to_string())
 }
@@ -49,12 +49,14 @@ mod test {
 
     #[test]
     fn test() {
-        let src = "
-        # This is a heading
+        let src = "# This is a heading
 
-        This is a paragraph.
-        With some **bold** and *italic* formatting.
-        ";
+This is a paragraph.
+With some **bold** and *italic* formatting.
+
+- A list
+- And so on
+";
 
         let _result = convert(Box::new(BufReader::new(src.as_bytes())));
     }
