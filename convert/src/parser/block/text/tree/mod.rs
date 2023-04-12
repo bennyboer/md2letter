@@ -14,6 +14,11 @@ pub(crate) struct Tree {
     node_id_generator: IdGenerator,
 }
 
+struct NodeOnLevel {
+    node_id: NodeId,
+    level: usize,
+}
+
 impl Tree {
     pub(crate) fn new(span: SourceSpan) -> Self {
         let mut node_id_generator = IdGenerator::new();
@@ -88,9 +93,4 @@ impl Display for Tree {
 
         Ok(())
     }
-}
-
-struct NodeOnLevel {
-    node_id: NodeId,
-    level: usize,
 }

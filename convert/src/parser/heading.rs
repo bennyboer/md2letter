@@ -68,7 +68,7 @@ mod tests {
     #[test]
     fn should_parse_first_level_heading() {
         let src = "# This is a heading";
-        let span = SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 20));
+        let span = SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 20));
 
         let parser = HeadingParser::new(src.to_string(), span.clone());
         let result = parser.parse();
@@ -99,7 +99,7 @@ mod tests {
     #[test]
     fn should_parse_multi_level_heading() {
         let src = "### This is third level heading";
-        let span = SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 20));
+        let span = SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 20));
 
         let parser = HeadingParser::new(src.to_string(), span.clone());
         let result = parser.parse();
@@ -131,7 +131,7 @@ mod tests {
     fn should_parse_crazy_heading() {
         let src = "########## This is a **crazy** [heading](https://example.com)
 with `multiple` *lines*!!!";
-        let span = SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(2, 27));
+        let span = SourceSpan::new(SourcePosition::zero(), SourcePosition::new(2, 27));
 
         let parser = HeadingParser::new(src.to_string(), span.clone());
         let result = parser.parse();

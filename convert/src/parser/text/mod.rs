@@ -116,7 +116,7 @@ mod tests {
     #[test]
     fn should_parse_trivial_text_block() {
         let src = "This is a paragraph.";
-        let span = SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 21));
+        let span = SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 21));
 
         let parser = TextParser::new(src.to_string(), span.clone());
         let result = parser.parse();
@@ -145,7 +145,7 @@ mod tests {
     #[test]
     fn should_parse_text_block_with_formatting() {
         let src = "This is **bold** and this is *italic* and this is ***both***, while *this is **mixed** and this is not*.";
-        let span = SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 105));
+        let span = SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 105));
 
         let parser = TextParser::new(src.to_string(), span.clone());
         let result = parser.parse();
@@ -190,7 +190,7 @@ mod tests {
     #[test]
     fn should_parse_text_block_with_link() {
         let src = "This is a **[link](https://example.com)**.";
-        let span = SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 43));
+        let span = SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 43));
 
         let parser = TextParser::new(src.to_string(), span.clone());
         let result = parser.parse();
@@ -223,7 +223,7 @@ mod tests {
     #[test]
     fn should_parse_text_block_with_image() {
         let src = "This is a **![my-image](my-image.png)**.";
-        let span = SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 43));
+        let span = SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 43));
 
         let parser = TextParser::new(src.to_string(), span.clone());
         let result = parser.parse();
@@ -260,7 +260,7 @@ mod tests {
   width: 200px,
   height: 100px
 ).";
-        let span = SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(5, 4));
+        let span = SourceSpan::new(SourcePosition::zero(), SourcePosition::new(5, 4));
 
         let parser = TextParser::new(src.to_string(), span.clone());
         let result = parser.parse();

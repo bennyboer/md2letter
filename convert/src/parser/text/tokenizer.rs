@@ -833,14 +833,14 @@ mod tests {
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 28)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 28)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 Text("This is a simple paragraph.".to_string()),
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 28)),
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 28)),
             )
         );
         assert!(tokenizer.next().is_none());
@@ -854,14 +854,14 @@ lines.";
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(3, 7)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(3, 7)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 Text("This is a simple paragraph that spans over multiple lines.".to_string()),
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(3, 7)),
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(3, 7)),
             )
         );
         assert!(tokenizer.next().is_none());
@@ -873,14 +873,14 @@ lines.";
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 21)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 21)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 ItalicStart,
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 2))
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 2))
             )
         );
         assert_eq!(
@@ -906,14 +906,14 @@ lines.";
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 23)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 23)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 BoldStart,
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 3))
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 3))
             )
         );
         assert_eq!(
@@ -939,14 +939,14 @@ lines.";
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 34)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 34)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 ItalicStart,
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 2))
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 2))
             )
         );
         assert_eq!(
@@ -1000,14 +1000,14 @@ lines.";
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 34)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 34)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 BoldStart,
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 3))
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 3))
             )
         );
         assert_eq!(
@@ -1061,14 +1061,14 @@ lines.";
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 19)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 19)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 ItalicStart,
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 2))
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 2))
             )
         );
         assert_eq!(
@@ -1108,14 +1108,14 @@ lines.";
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 30)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 30)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 ItalicStart,
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 2))
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 2))
             )
         );
         assert_eq!(
@@ -1162,14 +1162,14 @@ lines.";
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 30)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 30)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 ItalicStart,
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 2))
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 2))
             )
         );
         assert_eq!(
@@ -1216,14 +1216,14 @@ lines.";
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 30)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 30)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 BoldStart,
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 3))
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 3))
             )
         );
         assert_eq!(
@@ -1270,14 +1270,14 @@ lines.";
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 30)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 30)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 BoldStart,
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 3))
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 3))
             )
         );
         assert_eq!(
@@ -1324,14 +1324,14 @@ lines.";
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 34)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 34)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 Text("Here are ".to_string()),
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 10))
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 10))
             )
         );
         assert_eq!(
@@ -1392,14 +1392,14 @@ lines.";
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 34)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 34)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 Text("Here are ".to_string()),
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 10))
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 10))
             )
         );
         assert_eq!(
@@ -1460,14 +1460,14 @@ lines.";
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 22)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 22)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 BoldStart,
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 3))
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 3))
             )
         );
         assert_eq!(
@@ -1493,14 +1493,14 @@ lines.";
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 21)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 21)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 CodeStart,
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 2))
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 2))
             )
         );
         assert_eq!(
@@ -1526,14 +1526,14 @@ lines.";
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 31)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 31)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 Text("Here is some ".to_string()),
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 14))
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 14))
             )
         );
         assert_eq!(
@@ -1573,14 +1573,14 @@ lines.";
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 43)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 43)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 Text("In ".to_string()),
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 4))
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 4))
             )
         );
         assert_eq!(
@@ -1620,14 +1620,14 @@ lines.";
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 63)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 63)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 Text("We have some ".to_string()),
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 14))
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 14))
             )
         );
         assert_eq!(
@@ -1710,14 +1710,14 @@ links like [here](https://example.com).";
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(2, 40)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(2, 40)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 Text("Last, but not least, we want some links like ".to_string()),
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(2, 12))
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(2, 12))
             )
         );
         assert_eq!(
@@ -1746,14 +1746,14 @@ links like [here](https://example.com).";
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 68)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 68)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 Text("Here is an inline image ".to_string()),
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 25))
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 25))
             )
         );
         assert_eq!(
@@ -1787,14 +1787,14 @@ a function like #Image(
 
         let mut tokenizer = Tokenizer::new(
             src.to_string(),
-            SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(6, 31)),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(6, 31)),
         );
 
         assert_eq!(
             tokenizer.next().unwrap(),
             Token::new(
                 Text("Sometimes we want to use a function like ".to_string()),
-                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(2, 17))
+                SourceSpan::new(SourcePosition::zero(), SourcePosition::new(2, 17))
             )
         );
         assert_eq!(
