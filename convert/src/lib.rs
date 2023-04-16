@@ -51,6 +51,8 @@ mod test {
     fn test() {
         let src = "# This is a heading
 
+---
+
 This is a paragraph.
 With some **bold** and *italic* formatting.
 
