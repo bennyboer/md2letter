@@ -62,4 +62,21 @@ With some **bold** and *italic* formatting.
 
         let _result = convert(Box::new(BufReader::new(src.as_bytes())));
     }
+
+    #[test]
+    fn test_code_block() {
+        let src = "```js
+// This is a code block with empty lines
+// Normally an empty line would signal the end of a block - but not a code block!
+
+const foo = 'bar';
+
+console.log(foo);
+```
+";
+
+        let _result = convert(Box::new(BufReader::new(src.as_bytes())));
+
+        // TODO
+    }
 }

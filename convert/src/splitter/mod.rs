@@ -76,6 +76,8 @@ impl Iterator for BlockSplitter {
         let mut end_position = self.next_char_source_position();
         let mut buffer = String::new();
         let mut newline_count = 0;
+        let mut consecutive_backtick_counter = 0;
+        let mut in_code_block = false;
 
         loop {
             let next_char = self.read_next_char();
@@ -102,7 +104,8 @@ impl Iterator for BlockSplitter {
                         buffer.push(c);
                     }
                     _ => {
-                        if newline_count >= 2 {
+                        println!("{} {}", c, in_code_block);
+                        if newline_count >= 2 && !in_code_block {
                             self.push_unread_char(c);
 
                             let trimmed_string = buffer.trim().to_string();
@@ -112,9 +115,25 @@ impl Iterator for BlockSplitter {
                             ));
                         }
 
+                        if c == '`' {
+                            if buffer.is_empty()
+                                || consecutive_backtick_counter > 0
+                                || in_code_block
+                            {
+                                consecutive_backtick_counter += 1;
+
+                                if consecutive_backtick_counter == 3 {
+                                    in_code_block = !in_code_block;
+                                    consecutive_backtick_counter = 0;
+                                }
+                            }
+                        } else {
+                            consecutive_backtick_counter = 0;
+                        }
+
                         newline_count = 0;
                         end_position = self.next_char_source_position();
-                        buffer.push(c)
+                        buffer.push(c);
                     }
                 },
             }
@@ -231,6 +250,33 @@ rainbow!"#;
         assert_eq!(block.span().start.column, 1);
         assert_eq!(block.span().end.line, 10);
         assert_eq!(block.span().end.column, 9);
+
+        assert!(splitter.next().is_none());
+    }
+
+    #[test]
+    fn allow_empty_lines_in_code_block() {
+        let src = r#"```
+const test = "test";
+
+console.log(test);
+```"#;
+
+        let mut splitter = BlockSplitter::new(Box::new(src.as_bytes()));
+
+        let block = splitter.next().unwrap();
+        assert_eq!(
+            block.src(),
+            r#"```
+const test = "test";
+
+console.log(test);
+```"#
+        );
+        assert_eq!(block.span().start.line, 1);
+        assert_eq!(block.span().start.column, 1);
+        assert_eq!(block.span().end.line, 5);
+        assert_eq!(block.span().end.column, 4);
 
         assert!(splitter.next().is_none());
     }
