@@ -1,5 +1,3 @@
-use crate::util::SourceSpan;
-
 pub(crate) type LanguageIdentifier = String;
 
 #[derive(Debug)]
