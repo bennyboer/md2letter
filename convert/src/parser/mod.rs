@@ -8,6 +8,7 @@ use crate::parser::block::ParsedBlockKind;
 use crate::parser::code::CodeParser;
 use crate::parser::heading::HeadingParser;
 use crate::parser::list::ListParser;
+use crate::parser::table::TableParser;
 use crate::parser::text::TextParser;
 
 mod block;
@@ -15,6 +16,7 @@ mod code;
 mod heading;
 mod list;
 mod result;
+mod table;
 mod text;
 
 pub(crate) struct BlockParser;
@@ -35,10 +37,7 @@ impl BlockParser {
                 Ok(ParsedBlock::new(ParsedBlockKind::HorizontalRule, span))
             }
             BlockKind::Code => CodeParser::new(src, span.clone()).parse(),
-            BlockKind::Table => Err(ParseError {
-                message: "Parser for Table block not implemented yet".to_string(),
-                source_position: span.start.clone(),
-            }),
+            BlockKind::Table => TableParser::new(src, span.clone()).parse(),
             BlockKind::Image => Err(ParseError {
                 message: "Parser for Image block not implemented yet".to_string(),
                 source_position: span.start.clone(),
@@ -137,5 +136,23 @@ console.log('Hello World');
 
         let parsed_block = result.unwrap();
         assert!(parsed_block.is_code());
+    }
+
+    #[test]
+    fn should_parse_table_block() {
+        let src = "| Small | Table |
+| ----- | ----- |
+| 1     | 2     |
+| 3     | 4     |";
+        let span = SourceSpan::new(SourcePosition::zero(), SourcePosition::new(4, 19));
+        let categorized_block = CategorizedBlock::new(BlockKind::Table, src.to_string(), span);
+
+        let parser = BlockParser::new();
+        let result = parser.parse(categorized_block);
+
+        assert!(result.is_ok());
+
+        let parsed_block = result.unwrap();
+        assert!(parsed_block.is_table());
     }
 }

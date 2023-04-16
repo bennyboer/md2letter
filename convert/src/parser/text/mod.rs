@@ -3,11 +3,11 @@ use TokenKind::{
     Text,
 };
 
-use crate::parser::block::text::{NodeKind, TextBlock, Tree};
+use crate::parser::{ParsedBlock, ParseError, ParseResult};
 use crate::parser::block::ParsedBlockKind;
+use crate::parser::block::text::{NodeKind, TextBlock, Tree};
 use crate::parser::text::token::TokenKind;
 use crate::parser::text::tokenizer::Tokenizer;
-use crate::parser::{ParseError, ParseResult, ParsedBlock};
 use crate::util::SourceSpan;
 
 mod token;
@@ -138,6 +138,37 @@ mod tests {
             format!("{}", tree),
             "- [Root]
   - [Text](This is a paragraph.)
+"
+        );
+    }
+
+    #[test]
+    fn should_parse_text_block_with_simple_formatting() {
+        let src = "Column *A*";
+        let span = SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 21));
+
+        let parser = TextParser::new(src.to_string(), span.clone());
+        let result = parser.parse();
+
+        assert!(result.is_ok());
+
+        let parsed_block = result.unwrap();
+        assert!(parsed_block.is_text());
+
+        assert_eq!(span, parsed_block.span().clone());
+
+        let tree = if let ParsedBlockKind::Text(b) = parsed_block.kind() {
+            b.tree()
+        } else {
+            panic!("Expected text block");
+        };
+
+        assert_eq!(
+            format!("{}", tree),
+            "- [Root]
+  - [Text](Column )
+  - [Italic]
+    - [Text](A)
 "
         );
     }

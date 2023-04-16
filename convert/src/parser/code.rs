@@ -26,9 +26,6 @@ impl CodeParser {
         let header = self.find_header()?;
         let footer = self.find_footer()?;
 
-        println!("header.offset: {}", header.offset);
-        println!("footer.offset: {}", footer.offset);
-
         let code_src = self.src[header.offset..footer.offset].trim().to_string();
 
         Ok(ParsedBlock::new(

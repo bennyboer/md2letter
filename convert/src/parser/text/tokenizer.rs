@@ -158,6 +158,19 @@ impl Tokenizer {
                     is_italic = false;
                 }
             }
+        } else if let Some(last_char) = next_char_2 {
+            if last_char == '*' {
+                return Some(vec![
+                    FutureToken {
+                        token_kind: ItalicStart,
+                        offset: self.offset,
+                    },
+                    FutureToken {
+                        token_kind: ItalicEnd,
+                        offset: self.offset + 2,
+                    },
+                ]);
+            }
         }
 
         #[derive(Debug)]
@@ -895,6 +908,46 @@ lines.";
             Token::new(
                 ItalicEnd,
                 SourceSpan::new(SourcePosition::new(1, 20), SourcePosition::new(1, 21))
+            )
+        );
+        assert!(tokenizer.next().is_none());
+    }
+
+    #[test]
+    fn tokenize_italic_emphasis_2() {
+        let src = "Column *A*";
+
+        let mut tokenizer = Tokenizer::new(
+            src.to_string(),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 21)),
+        );
+
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::new(
+                Text("Column ".to_string()),
+                SourceSpan::new(SourcePosition::new(1, 1), SourcePosition::new(1, 8))
+            )
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::new(
+                ItalicStart,
+                SourceSpan::new(SourcePosition::new(1, 8), SourcePosition::new(1, 9))
+            )
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::new(
+                Text("A".to_string()),
+                SourceSpan::new(SourcePosition::new(1, 9), SourcePosition::new(1, 10))
+            )
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token::new(
+                ItalicEnd,
+                SourceSpan::new(SourcePosition::new(1, 10), SourcePosition::new(1, 11))
             )
         );
         assert!(tokenizer.next().is_none());
