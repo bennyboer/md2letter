@@ -7,6 +7,7 @@ use crate::categorizer::{BlockKind, CategorizedBlock};
 use crate::parser::block::ParsedBlockKind;
 use crate::parser::code::CodeParser;
 use crate::parser::heading::HeadingParser;
+use crate::parser::image::ImageParser;
 use crate::parser::list::ListParser;
 use crate::parser::table::TableParser;
 use crate::parser::text::TextParser;
@@ -14,6 +15,7 @@ use crate::parser::text::TextParser;
 mod block;
 mod code;
 mod heading;
+mod image;
 mod list;
 mod result;
 mod table;
@@ -38,10 +40,7 @@ impl BlockParser {
             }
             BlockKind::Code => CodeParser::new(src, span.clone()).parse(),
             BlockKind::Table => TableParser::new(src, span.clone()).parse(),
-            BlockKind::Image => Err(ParseError {
-                message: "Parser for Image block not implemented yet".to_string(),
-                source_position: span.start.clone(),
-            }),
+            BlockKind::Image => ImageParser::new(src, span.clone()).parse(),
             BlockKind::Quote => Err(ParseError {
                 message: "Parser for Quote block not implemented yet".to_string(),
                 source_position: span.start.clone(),
@@ -154,5 +153,20 @@ console.log('Hello World');
 
         let parsed_block = result.unwrap();
         assert!(parsed_block.is_table());
+    }
+
+    #[test]
+    fn should_parse_image_block() {
+        let src = "![alt text](image.jpg)";
+        let span = SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 23));
+        let categorized_block = CategorizedBlock::new(BlockKind::Image, src.to_string(), span);
+
+        let parser = BlockParser::new();
+        let result = parser.parse(categorized_block);
+
+        assert!(result.is_ok());
+
+        let parsed_block = result.unwrap();
+        assert!(parsed_block.is_image());
     }
 }
