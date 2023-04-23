@@ -9,6 +9,7 @@ use crate::parser::code::CodeParser;
 use crate::parser::heading::HeadingParser;
 use crate::parser::image::ImageParser;
 use crate::parser::list::ListParser;
+use crate::parser::quote::QuoteParser;
 use crate::parser::table::TableParser;
 use crate::parser::text::TextParser;
 
@@ -17,6 +18,7 @@ mod code;
 mod heading;
 mod image;
 mod list;
+mod quote;
 mod result;
 mod table;
 mod text;
@@ -32,19 +34,16 @@ impl BlockParser {
         let (kind, src, span) = categorized_block.consume();
 
         match kind {
-            BlockKind::Text => TextParser::new(src, span.clone()).parse(),
-            BlockKind::Heading => HeadingParser::new(src, span.clone()).parse(),
-            BlockKind::List => ListParser::new(src, span.clone()).parse(),
+            BlockKind::Text => TextParser::new(src, span).parse(),
+            BlockKind::Heading => HeadingParser::new(src, span).parse(),
+            BlockKind::List => ListParser::new(src, span).parse(),
             BlockKind::HorizontalRule => {
                 Ok(ParsedBlock::new(ParsedBlockKind::HorizontalRule, span))
             }
-            BlockKind::Code => CodeParser::new(src, span.clone()).parse(),
-            BlockKind::Table => TableParser::new(src, span.clone()).parse(),
-            BlockKind::Image => ImageParser::new(src, span.clone()).parse(),
-            BlockKind::Quote => Err(ParseError {
-                message: "Parser for Quote block not implemented yet".to_string(),
-                source_position: span.start.clone(),
-            }),
+            BlockKind::Code => CodeParser::new(src, span).parse(),
+            BlockKind::Table => TableParser::new(src, span).parse(),
+            BlockKind::Image => ImageParser::new(src, span).parse(),
+            BlockKind::Quote => QuoteParser::new(src, span).parse(),
             BlockKind::Function => Err(ParseError {
                 message: "Parser for Function block not implemented yet".to_string(),
                 source_position: span.start.clone(),
@@ -168,5 +167,20 @@ console.log('Hello World');
 
         let parsed_block = result.unwrap();
         assert!(parsed_block.is_image());
+    }
+
+    #[test]
+    fn should_parse_quote_block() {
+        let src = "> This is a quote";
+        let span = SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 18));
+        let categorized_block = CategorizedBlock::new(BlockKind::Quote, src.to_string(), span);
+
+        let parser = BlockParser::new();
+        let result = parser.parse(categorized_block);
+
+        assert!(result.is_ok());
+
+        let parsed_block = result.unwrap();
+        assert!(parsed_block.is_quote());
     }
 }
