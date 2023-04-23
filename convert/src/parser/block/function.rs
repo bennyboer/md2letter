@@ -12,5 +12,18 @@ pub(crate) type FunctionParameters = HashMap<ParameterName, ParameterValue>;
 pub(crate) struct FunctionBlock {
     name: FunctionName,
     parameters: FunctionParameters,
-    span: SourceSpan,
+}
+
+impl FunctionBlock {
+    pub fn new(name: FunctionName, parameters: FunctionParameters) -> Self {
+        Self { name, parameters }
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn parameters(&self) -> &FunctionParameters {
+        &self.parameters
+    }
 }

@@ -6,6 +6,7 @@ pub(crate) use result::{ParseError, ParseResult};
 use crate::categorizer::{BlockKind, CategorizedBlock};
 use crate::parser::block::ParsedBlockKind;
 use crate::parser::code::CodeParser;
+use crate::parser::function::FunctionParser;
 use crate::parser::heading::HeadingParser;
 use crate::parser::image::ImageParser;
 use crate::parser::list::ListParser;
@@ -15,6 +16,7 @@ use crate::parser::text::TextParser;
 
 mod block;
 mod code;
+mod function;
 mod heading;
 mod image;
 mod list;
@@ -44,10 +46,7 @@ impl BlockParser {
             BlockKind::Table => TableParser::new(src, span).parse(),
             BlockKind::Image => ImageParser::new(src, span).parse(),
             BlockKind::Quote => QuoteParser::new(src, span).parse(),
-            BlockKind::Function => Err(ParseError {
-                message: "Parser for Function block not implemented yet".to_string(),
-                source_position: span.start.clone(),
-            }),
+            BlockKind::Function => FunctionParser::new(src, span).parse(),
         }
     }
 }
@@ -182,5 +181,20 @@ console.log('Hello World');
 
         let parsed_block = result.unwrap();
         assert!(parsed_block.is_quote());
+    }
+
+    #[test]
+    fn should_parse_function_block() {
+        let src = "#TableOfContents";
+        let span = SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 17));
+        let categorized_block = CategorizedBlock::new(BlockKind::Function, src.to_string(), span);
+
+        let parser = BlockParser::new();
+        let result = parser.parse(categorized_block);
+
+        assert!(result.is_ok());
+
+        let parsed_block = result.unwrap();
+        assert!(parsed_block.is_function());
     }
 }
