@@ -39,10 +39,6 @@ impl Tree {
         self.nodes.get(&self.root).unwrap()
     }
 
-    pub(crate) fn get_node(&self, id: NodeId) -> Option<&Node> {
-        self.nodes.get(&id)
-    }
-
     pub(crate) fn register_node(
         &mut self,
         parent_id: NodeId,

@@ -12,10 +12,6 @@ impl ListBlock {
         Self { tree }
     }
 
-    pub fn tree(&self) -> &ListTree {
-        &self.tree
-    }
-
     pub fn into_tree(self) -> ListTree {
         self.tree
     }

@@ -40,10 +40,6 @@ impl ListTree {
         self.items.get(&self.root).unwrap()
     }
 
-    pub(crate) fn get_item(&self, id: ListNodeId) -> Option<&ListNode> {
-        self.items.get(&id)
-    }
-
     pub(crate) fn register_node(
         &mut self,
         parent_id: ListNodeId,

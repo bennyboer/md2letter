@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 
-use crate::util::SourceSpan;
-
 pub(crate) type FunctionName = String;
 
 pub(crate) type ParameterName = String;

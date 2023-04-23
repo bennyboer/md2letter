@@ -16,7 +16,7 @@ impl ImageParser {
 
     pub fn parse(self) -> ParseResult<ParsedBlock> {
         let src = self.src.trim();
-        let mut offset = self.src.len() - src.len();
+        let offset = self.src.len() - src.len();
         let src = &src[2..];
 
         // Find closing ']'
