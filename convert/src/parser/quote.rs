@@ -1,7 +1,7 @@
-use crate::parser::block::quote::{QuoteBlock, QuoteNodeId, QuoteNodeKind, QuoteTree};
+use crate::parser::{ParsedBlock, ParseError, ParseResult};
 use crate::parser::block::ParsedBlockKind;
+use crate::parser::block::quote::{QuoteBlock, QuoteNodeId, QuoteNodeKind, QuoteTree};
 use crate::parser::text::TextParser;
-use crate::parser::{ParseError, ParseResult, ParsedBlock};
 use crate::util::{SourcePosition, SourceSpan};
 
 pub(crate) struct QuoteParser {
@@ -45,13 +45,11 @@ impl QuoteParser {
 
             let is_same_indent = current_indent == indented_quote_line.indent;
             if is_same_indent {
-                println!("is_same_indent");
                 if !text_buffer.is_empty() {
                     text_buffer.push(' ');
                 }
                 text_buffer.push_str(&indented_quote_line.line);
             } else if current_indent < indented_quote_line.indent {
-                println!("current_indent < indented_quote_line.indent");
                 self.consume_text_buffer_into_node(
                     &mut tree,
                     &mut text_buffer,
@@ -69,7 +67,6 @@ impl QuoteParser {
                 start_line_number = indented_quote_line.line_number;
                 start_offset = indented_quote_line.offset;
             } else {
-                println!("current_indent > indented_quote_line.indent");
                 self.consume_text_buffer_into_node(
                     &mut tree,
                     &mut text_buffer,

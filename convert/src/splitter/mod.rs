@@ -104,7 +104,6 @@ impl Iterator for BlockSplitter {
                         buffer.push(c);
                     }
                     _ => {
-                        println!("{} {}", c, in_code_block);
                         if newline_count >= 2 && !in_code_block {
                             self.push_unread_char(c);
 
