@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 
-pub(crate) use crate::parser::block::list::tree::node::{ListNodeKind, ListNodeStyle};
+pub(crate) use crate::parser::block::list::tree::node::{
+    ListNode, ListNodeId, ListNodeKind, ListNodeStyle,
+};
 use crate::util::IdGenerator;
-
-use self::node::{ListNode, ListNodeId};
 
 mod node;
 
@@ -38,6 +38,10 @@ impl ListTree {
 
     pub(crate) fn root(&self) -> &ListNode {
         self.items.get(&self.root).unwrap()
+    }
+
+    pub(crate) fn get_node(&self, id: ListNodeId) -> &ListNode {
+        self.items.get(&id).unwrap()
     }
 
     pub(crate) fn register_node(

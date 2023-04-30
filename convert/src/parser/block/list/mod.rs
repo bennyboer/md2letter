@@ -1,4 +1,4 @@
-pub(crate) use self::tree::{ListNodeKind, ListNodeStyle, ListTree};
+pub(crate) use self::tree::{ListNodeKind, ListNodeStyle, ListTree, ListNodeId};
 
 mod tree;
 

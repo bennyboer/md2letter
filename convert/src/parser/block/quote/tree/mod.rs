@@ -39,6 +39,10 @@ impl QuoteTree {
         self.nodes.get(&self.root).unwrap()
     }
 
+    pub(crate) fn get_node(&self, id: QuoteNodeId) -> &QuoteNode {
+        self.nodes.get(&id).unwrap()
+    }
+
     pub fn register_node(&mut self, parent: QuoteNodeId, kind: QuoteNodeKind) -> QuoteNodeId {
         let node_id = self.node_id_generator.next();
         let node = QuoteNode::new(node_id, kind);

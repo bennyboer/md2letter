@@ -1,6 +1,6 @@
 use crate::util::SourceSpan;
 
-use self::{
+pub(crate) use self::{
     code::CodeBlock, function::FunctionBlock, heading::HeadingBlock, image::ImageBlock,
     list::ListBlock, quote::QuoteBlock, table::TableBlock, text::TextBlock,
 };

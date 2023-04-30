@@ -5,7 +5,7 @@ pub(crate) type QuoteNodeId = usize;
 #[derive(Debug)]
 pub(crate) enum QuoteNodeKind {
     Parent,
-    Leaf { text_tree: text::Tree },
+    Leaf { text_tree: text::TextTree },
 }
 
 #[derive(Debug)]

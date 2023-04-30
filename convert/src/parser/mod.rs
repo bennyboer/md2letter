@@ -1,10 +1,19 @@
 //! Parse various Markdown blocks.
 
-pub(crate) use block::ParsedBlock;
+pub(crate) use block::{
+    code::CodeBlock,
+    function::FunctionBlock,
+    heading::HeadingBlock,
+    image::ImageBlock,
+    list::{ListBlock, ListNodeId, ListNodeKind, ListNodeStyle, ListTree},
+    quote::{QuoteBlock, QuoteNodeId, QuoteNodeKind, QuoteTree},
+    table::{TableBlock, TableCell, TableRow},
+    text::{TextBlock, TextNodeId, TextNodeKind, TextTree},
+    ParsedBlock, ParsedBlockKind,
+};
 pub(crate) use result::{ParseError, ParseResult};
 
 use crate::categorizer::{BlockKind, CategorizedBlock};
-use crate::parser::block::ParsedBlockKind;
 use crate::parser::code::CodeParser;
 use crate::parser::function::FunctionParser;
 use crate::parser::heading::HeadingParser;

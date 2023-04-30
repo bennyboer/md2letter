@@ -38,6 +38,9 @@ pub fn convert(reader: Box<dyn Read>) -> ConvertResult<String> {
         .iter()
         .for_each(|parsed_block| println!("Parsed block '{:#?}'", parsed_block));
 
+    // TODO Transform parsed blocks
+    // TODO Render blocks!
+
     Ok("".to_string())
 }
 

@@ -7,7 +7,7 @@ pub(crate) type ListNodeId = usize;
 #[derive(Debug)]
 pub(crate) enum ListNodeKind {
     Parent,
-    Leaf { text_tree: text::Tree },
+    Leaf { text_tree: text::TextTree },
 }
 
 #[derive(Debug, Copy, Clone)]

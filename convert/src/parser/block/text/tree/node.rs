@@ -3,10 +3,10 @@ use std::fmt::{Display, Formatter};
 use crate::parser::block::function::{FunctionName, FunctionParameters};
 use crate::util::SourceSpan;
 
-pub(crate) type NodeId = usize;
+pub(crate) type TextNodeId = usize;
 
 #[derive(Debug, PartialEq)]
-pub(crate) enum NodeKind {
+pub(crate) enum TextNodeKind {
     Root,
     Text {
         src: String,
@@ -27,15 +27,15 @@ pub(crate) enum NodeKind {
 }
 
 #[derive(Debug)]
-pub(crate) struct Node {
-    id: NodeId,
-    kind: NodeKind,
-    children: Vec<NodeId>,
+pub(crate) struct TextNode {
+    id: TextNodeId,
+    kind: TextNodeKind,
+    children: Vec<TextNodeId>,
     span: SourceSpan,
 }
 
-impl Node {
-    pub(crate) fn new(id: NodeId, kind: NodeKind, span: SourceSpan) -> Self {
+impl TextNode {
+    pub(crate) fn new(id: TextNodeId, kind: TextNodeKind, span: SourceSpan) -> Self {
         Self {
             id,
             kind,
@@ -44,15 +44,15 @@ impl Node {
         }
     }
 
-    pub(crate) fn id(&self) -> NodeId {
+    pub(crate) fn id(&self) -> TextNodeId {
         self.id
     }
 
-    pub(crate) fn kind(&self) -> &NodeKind {
+    pub(crate) fn kind(&self) -> &TextNodeKind {
         &self.kind
     }
 
-    pub(crate) fn children(&self) -> &[NodeId] {
+    pub(crate) fn children(&self) -> &[TextNodeId] {
         &self.children
     }
 
@@ -60,22 +60,22 @@ impl Node {
         &self.span
     }
 
-    pub(crate) fn register_child(&mut self, child: NodeId) {
+    pub(crate) fn register_child(&mut self, child: TextNodeId) {
         self.children.push(child);
     }
 }
 
-impl Display for NodeKind {
+impl Display for TextNodeKind {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            NodeKind::Root => write!(f, "[Root]"),
-            NodeKind::Text { src } => write!(f, "[Text]({})", src),
-            NodeKind::Bold => write!(f, "[Bold]"),
-            NodeKind::Italic => write!(f, "[Italic]"),
-            NodeKind::Code => write!(f, "[Code]"),
-            NodeKind::Link { target } => write!(f, "[Link]({})", target),
-            NodeKind::Image { src } => write!(f, "[Image]({})", src),
-            NodeKind::Function { name, parameters } => {
+            TextNodeKind::Root => write!(f, "[Root]"),
+            TextNodeKind::Text { src } => write!(f, "[Text]({})", src),
+            TextNodeKind::Bold => write!(f, "[Bold]"),
+            TextNodeKind::Italic => write!(f, "[Italic]"),
+            TextNodeKind::Code => write!(f, "[Code]"),
+            TextNodeKind::Link { target } => write!(f, "[Link]({})", target),
+            TextNodeKind::Image { src } => write!(f, "[Image]({})", src),
+            TextNodeKind::Function { name, parameters } => {
                 let mut param_strings = parameters
                     .iter()
                     .map(|(key, value)| format!("{}: {}", key, value))

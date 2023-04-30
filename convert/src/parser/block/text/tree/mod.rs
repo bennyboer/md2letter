@@ -3,29 +3,29 @@ use std::fmt::{Display, Formatter};
 
 use crate::util::{IdGenerator, SourceSpan};
 
-pub(crate) use self::node::{Node, NodeId, NodeKind};
+pub(crate) use self::node::{TextNode, TextNodeId, TextNodeKind};
 
 mod node;
 
 #[derive(Debug)]
-pub(crate) struct Tree {
-    nodes: HashMap<NodeId, Node>,
-    root: NodeId,
+pub(crate) struct TextTree {
+    nodes: HashMap<TextNodeId, TextNode>,
+    root: TextNodeId,
     node_id_generator: IdGenerator,
 }
 
 struct NodeOnLevel {
-    node_id: NodeId,
+    node_id: TextNodeId,
     level: usize,
 }
 
-impl Tree {
+impl TextTree {
     pub(crate) fn new(span: SourceSpan) -> Self {
         let mut node_id_generator = IdGenerator::new();
         let mut nodes = HashMap::new();
 
         let root_id = node_id_generator.next();
-        let root_node = Node::new(root_id, NodeKind::Root, span);
+        let root_node = TextNode::new(root_id, TextNodeKind::Root, span);
         nodes.insert(root_id, root_node);
 
         Self {
@@ -35,19 +35,23 @@ impl Tree {
         }
     }
 
-    pub(crate) fn root(&self) -> &Node {
+    pub(crate) fn root(&self) -> &TextNode {
         self.nodes.get(&self.root).unwrap()
+    }
+
+    pub(crate) fn get_node(&self, id: TextNodeId) -> &TextNode {
+        self.nodes.get(&id).unwrap()
     }
 
     pub(crate) fn register_node(
         &mut self,
-        parent_id: NodeId,
-        kind: NodeKind,
+        parent_id: TextNodeId,
+        kind: TextNodeKind,
         span: SourceSpan,
-    ) -> NodeId {
+    ) -> TextNodeId {
         let id = self.node_id_generator.next();
 
-        let node = Node::new(id, kind, span);
+        let node = TextNode::new(id, kind, span);
         self.nodes.insert(id, node);
 
         let parent_node = self.nodes.get_mut(&parent_id).unwrap();
@@ -56,7 +60,7 @@ impl Tree {
         id
     }
 
-    fn visit(&self, node: &Node, nodes: &mut Vec<NodeOnLevel>, level: usize) {
+    fn visit(&self, node: &TextNode, nodes: &mut Vec<NodeOnLevel>, level: usize) {
         nodes.push(NodeOnLevel {
             node_id: node.id(),
             level,
@@ -70,7 +74,7 @@ impl Tree {
     }
 }
 
-impl Display for Tree {
+impl Display for TextTree {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut nodes = Vec::new();
         self.visit(self.root(), &mut nodes, 0);

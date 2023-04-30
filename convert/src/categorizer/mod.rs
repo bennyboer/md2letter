@@ -210,7 +210,7 @@ impl BlockCategorizer {
         // Check if there is more content in the block
         for c in src.chars().skip(counter) {
             match c {
-                ' ' | '\t' => {}
+                ' ' | '\t' | '\n' => {}
                 _ => return false,
             }
         }
@@ -271,7 +271,7 @@ impl BlockCategorizer {
         // Check if there is more content to the block than just the function
         for c in src.chars().skip(counter) {
             match c {
-                ' ' | '\t' => {}
+                ' ' | '\t' | '\n' => {}
                 _ => return false,
             }
         }
@@ -920,8 +920,15 @@ console.log('test');
     #[test]
     fn categorize_function() {
         let function_block = SplitterBlock::new(
-            "#fn(test)".to_string(),
-            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 10)),
+            "\
+#image(
+    width: 100px, 
+    height: 100px, 
+    src: \"test.jpg\"
+)\
+"
+            .to_string(),
+            SourceSpan::new(SourcePosition::zero(), SourcePosition::new(5, 1)),
         );
 
         let categorizer = BlockCategorizer::new();
@@ -929,10 +936,19 @@ console.log('test');
         let categorized_block = categorizer.categorize(function_block);
 
         assert_eq!(categorized_block.kind(), &Function);
-        assert_eq!(categorized_block.src(), "#fn(test)");
+        assert_eq!(
+            categorized_block.src(),
+            "\
+#image(
+    width: 100px, 
+    height: 100px, 
+    src: \"test.jpg\"
+)\
+"
+        );
         assert_eq!(
             categorized_block.span(),
-            &SourceSpan::new(SourcePosition::zero(), SourcePosition::new(1, 10))
+            &SourceSpan::new(SourcePosition::zero(), SourcePosition::new(5, 1))
         );
     }
 

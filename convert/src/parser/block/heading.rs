@@ -3,11 +3,11 @@ use super::text;
 #[derive(Debug)]
 pub(crate) struct HeadingBlock {
     level: usize,
-    text_tree: text::Tree,
+    text_tree: text::TextTree,
 }
 
 impl HeadingBlock {
-    pub fn new(level: usize, text_tree: text::Tree) -> Self {
+    pub fn new(level: usize, text_tree: text::TextTree) -> Self {
         Self { level, text_tree }
     }
 
@@ -15,7 +15,7 @@ impl HeadingBlock {
         self.level
     }
 
-    pub fn text_tree(&self) -> &text::Tree {
+    pub fn text_tree(&self) -> &text::TextTree {
         &self.text_tree
     }
 }

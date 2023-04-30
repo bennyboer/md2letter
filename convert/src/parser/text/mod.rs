@@ -3,11 +3,11 @@ use TokenKind::{
     Text,
 };
 
-use crate::parser::{ParsedBlock, ParseError, ParseResult};
+pub(crate) use crate::parser::block::text::{TextBlock, TextNodeKind, TextTree};
 use crate::parser::block::ParsedBlockKind;
-use crate::parser::block::text::{NodeKind, TextBlock, Tree};
 use crate::parser::text::token::TokenKind;
 use crate::parser::text::tokenizer::Tokenizer;
+use crate::parser::{ParseError, ParseResult, ParsedBlock};
 use crate::util::SourceSpan;
 
 mod token;
@@ -15,14 +15,14 @@ mod tokenizer;
 
 pub(crate) struct TextParser {
     tokenizer: Tokenizer,
-    tree: Tree,
+    tree: TextTree,
 }
 
 impl TextParser {
     pub fn new(src: String, span: SourceSpan) -> Self {
         Self {
             tokenizer: Tokenizer::new(src, span.clone()),
-            tree: Tree::new(span),
+            tree: TextTree::new(span),
         }
     }
 
@@ -46,34 +46,40 @@ impl TextParser {
                 Text(s) => {
                     self.tree.register_node(
                         parent_node_id,
-                        NodeKind::Text { src: s.clone() },
+                        TextNodeKind::Text { src: s.clone() },
                         span,
                     );
                 }
                 Link { label, target } => {
                     let node_id = self.tree.register_node(
                         parent_node_id,
-                        NodeKind::Link {
+                        TextNodeKind::Link {
                             target: target.clone(),
                         },
                         span.clone(),
                     );
-                    self.tree
-                        .register_node(node_id, NodeKind::Text { src: label.clone() }, span);
+                    self.tree.register_node(
+                        node_id,
+                        TextNodeKind::Text { src: label.clone() },
+                        span,
+                    );
                 }
                 Image { label, src } => {
                     let node_id = self.tree.register_node(
                         parent_node_id,
-                        NodeKind::Image { src: src.clone() },
+                        TextNodeKind::Image { src: src.clone() },
                         span.clone(),
                     );
-                    self.tree
-                        .register_node(node_id, NodeKind::Text { src: label.clone() }, span);
+                    self.tree.register_node(
+                        node_id,
+                        TextNodeKind::Text { src: label.clone() },
+                        span,
+                    );
                 }
                 Function { name, parameters } => {
                     self.tree.register_node(
                         parent_node_id,
-                        NodeKind::Function {
+                        TextNodeKind::Function {
                             name: name.clone(),
                             parameters: parameters.clone(),
                         },
@@ -82,9 +88,9 @@ impl TextParser {
                 }
                 BoldStart | ItalicStart | CodeStart => {
                     let node_kind = match token.kind() {
-                        BoldStart => NodeKind::Bold,
-                        ItalicStart => NodeKind::Italic,
-                        CodeStart => NodeKind::Code,
+                        BoldStart => TextNodeKind::Bold,
+                        ItalicStart => TextNodeKind::Italic,
+                        CodeStart => TextNodeKind::Code,
                         _ => unreachable!(),
                     };
 
