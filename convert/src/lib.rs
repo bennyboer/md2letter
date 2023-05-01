@@ -6,6 +6,7 @@ use std::io::Read;
 use parser::BlockParser;
 
 use crate::parser::{ParseError, ParsedBlock};
+use crate::transformer::transform;
 use crate::{categorizer::BlockCategorizer, splitter::BlockSplitter};
 
 mod categorizer;
@@ -34,52 +35,9 @@ pub fn convert(reader: Box<dyn Read>) -> ConvertResult<String> {
         return Err(format!("Failed to parse block: {:?}", blocks_result).into());
     };
 
-    blocks
-        .iter()
-        .for_each(|parsed_block| println!("Parsed block '{:#?}'", parsed_block));
+    let tree = transform(blocks.into_iter()).map_err(|e| e.message)?;
 
-    // TODO Transform parsed blocks
-    // TODO Render blocks!
+    // TODO Render tree properly using an XML/HTML formatter
 
-    Ok("".to_string())
-}
-
-#[cfg(test)]
-mod test {
-    use std::io::BufReader;
-
-    use super::*;
-
-    #[test]
-    fn test() {
-        let src = "# This is a heading
-
----
-
-This is a paragraph.
-With some **bold** and *italic* formatting.
-
-- A list
-- And so on
-";
-
-        let _result = convert(Box::new(BufReader::new(src.as_bytes())));
-    }
-
-    #[test]
-    fn test_code_block() {
-        let src = "```js
-// This is a code block with empty lines
-// Normally an empty line would signal the end of a block - but not a code block!
-
-const foo = 'bar';
-
-console.log(foo);
-```
-";
-
-        let _result = convert(Box::new(BufReader::new(src.as_bytes())));
-
-        // TODO
-    }
+    Ok(tree.to_string())
 }
